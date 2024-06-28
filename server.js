@@ -1,26 +1,14 @@
-const setup = require("./db_setup");
-const express = require("express");
-const fs = require("fs");
-const https = require("https");
-const session = require("express-session");
-
-
+const express = require('express');
+const path = require('path');
 const app = express();
 
-const options = {
-    key: fs.readFileSync("./server.key"),
-    cert: fs.readFileSync("./server.cert"),
-  };
+app.listen(8080, function () {
+    console.log('8080 server ready...');
+});
 
-app.use(session({
-    secret: "암호화키",
-    resave: false,
-    saveUninitialized: false,
-}));
+// 정적 파일 제공 경로 설정
+app.use('/', express.static(path.join(__dirname, '/')));
 
-//app.use('/', require('./routes/account.js'));
-
-https.createServer(options, app).listen(process.env.WEB_PORT, async () => {
-    await setup();
-    console.log(`${process.env.WEB_PORT} 포트 https 서버 실행 중.. `);
+app.get("/", (req, res) => {
+    res.render("index.ejs");
 });
