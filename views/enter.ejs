@@ -8,17 +8,31 @@
   </head>
   <body>
 
+  <!-- 코드 추가함 -->
+    <% if(typeof data != 'undefined' && data.alertMsg){ %>
+      <script>
+        alert(`<%= data.alertMsg %>`);
+      </script>
+    <% } %>
+
       <div class = "container mt-4">
         <h1>회원가입</h1>
         <form action = "/account/save" method="post">
             <div class = "form-group">
             <label>아이디</label>
+            <!-- 코드 추가함 -->
             <input type="text" name = "userid" class = "form-control">
+		        <% if(typeof data != 'undefined' && data.msg){ %>
+		            <span class="text-danger"><%= data.msg %></span>
+	          <% } %>
             </div><p></p>
 
             <div class="form-group">
-            <label>비밀번호</label>
-            <input type="password"  class="form-control" name ="userpw">
+              <label>비밀번호</label>
+              <input type="password" class="form-control" name="userpw">
+              <% if(typeof data != 'undefined' && data.pwMsg){ %>
+                <span class="text-danger"><%= data.pwMsg %></span>
+              <% } %>
             </div><p></p>
 
             <div class="form-group">
