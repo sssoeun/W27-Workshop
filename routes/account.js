@@ -104,4 +104,98 @@ router.get('/account/logout', (req, res) => {
   res.render('index.ejs');
 });
 
+router.post('/account/transfer', async (req, res) => {
+    const { mongodb } = await setup();
+    const action = req.body.action; // 폼에서 전송된 action 값 확인
+
+    mongodb.collection("account")
+        .findOne({ userid: req.session.user.inputID })
+        .then(result => {
+            if (!result) {
+                console.log("User not found");
+                return res.status(404).send("User not found");
+            }
+
+            console.log("전송 db 확인");
+            console.log(result);
+            console.log("db값 확인");
+
+            let money = parseInt(req.body.money, 10);
+            let asset = parseInt(result.ASSET, 10);
+
+            if (isNaN(money) || isNaN(asset)) {
+                console.log("Invalid input : Not a number");
+                return res.status(400).send("Invalid input");
+            }
+
+            console.log("입력된 돈 : ", money);
+            console.log("입력된 자산: ", asset);
+            if (action === 'transfer') {
+                console.log("이체 시작");
+                if (asset < money) {
+                    console.log("보유하신 금액 초과입니다");
+                    return res.status(400).send("보유하신 금액 초과입니다.");
+                } else {
+                    console.log("입금 시작");
+                    mongodb.collection("account")
+                        .findOne({ userid: req.body.reciver })
+                        .then(async (receiver) => {
+                            if (!receiver) {
+                                console.log("Receiver not found");
+                                return res.status(404).send("Receiver not found");
+                            }
+
+                            let senderNewAsset = asset - money;
+                            let receiverNewAsset = parseInt(receiver.ASSET, 10) + money;
+
+                            const bulkOps = [
+                                {
+                                    updateOne: {
+                                        filter: { userid: req.session.user.inputID },
+                                        update: { $set: { ASSET: senderNewAsset } }
+                                    }
+                                },
+                                {
+                                    updateOne: {
+                                        filter: { userid: req.body.reciver },
+                                        update: { $set: { ASSET: receiverNewAsset } }
+                                    }
+                                }
+                            ];
+
+                            try {
+                                const sendDB = await mongodb.collection("account").bulkWrite(bulkOps);
+                                console.log("송금 완료");
+                                res.send('<script>alert("송금이 완료 되었습니다."); window.location.href = "/";</script>');
+                            } catch (err) {
+                                console.log("Receiver find error:", err);
+                                res.status(500).send("Internal Server Error");
+                            }
+                        });
+                }
+            } else if (action === 'deposit') {
+                asset += money;
+                mongodb.collection("account").updateOne(
+                    { userid: req.session.user.inputID },
+                    { $set: { ASSET: asset } }
+                ).then(result => {
+                    console.log("입금 완료");
+                    res.send('<script>alert("입금이 완료 되었습니다."); window.location.href = "/";</script>');
+                }).catch(err => {
+                    console.log("Update error:", err);
+                    res.status(500).send("Internal Server Error");
+                });
+            } else {
+                console.log("잘못된 요청입니다.");
+                res.status(400).send("잘못된 요청입니다.");
+            }
+        })
+        .catch((err) => {
+            console.log("DB error:", err);
+            res.status(500).send("Internal Server Error");
+        });
+});
+
+
+
 module.exports = router;

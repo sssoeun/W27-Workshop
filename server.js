@@ -29,6 +29,7 @@ app.use(session({
 }));
 
 app.use('/', require('./routes/account.js'));
+app.use('/', require('./routes/post.js')); 
 
 https.createServer(options, app).listen(process.env.WEB_PORT, async () => {
     await setup();
