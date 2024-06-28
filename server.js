@@ -12,6 +12,11 @@ const options = {
     cert: fs.readFileSync("./server.cert"),
   };
 
+app.get('/', (req,res) => {
+    res.render('index.ejs');
+});
+
+
 app.use(session({
     secret: "암호화키",
     resave: false,
