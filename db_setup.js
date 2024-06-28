@@ -20,10 +20,10 @@ const setup = async () => {
     console.log("몽고 DB 접속 성공");
     
     mysqldb = mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: '0719',
-        database: 'myboard'
+        host: process.env.MYSQL_HOST,
+        user: process.env.MYSQL_USER,
+        password: process.env.MYSQL_PASSWORD,
+        database: process.env.MYSQL_DB
     });
     mysqldb.connect();
     console.log("MySQL 접속 성공");

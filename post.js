@@ -3,11 +3,8 @@ const setup = require("../db_setup");
 
 const sha = require("sha256");
 
-router.get("/post/transfer", isAuthenticated, async (req, res) => {
-    const { mongodb } = await setup();
-    const user = await mongodb.collection('account').findOne({ userid: req.session.user.userid });
-    const userAsset = user ? user.asset : 0;
-    res.render("transfer.ejs", { user: req.session.user, asset: userAsset });
+router.get("/post/transfer", isAuthenticated, (req, res) => {
+    res.render("transfer.ejs", { user: req.session.user });
 });
 
 

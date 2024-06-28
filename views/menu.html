@@ -1,14 +1,14 @@
 <!-- Bootstrap -->
-<link href="css/bootstrap.min.css">
+<link href="/public/css/bootstrap.min.css">
 <!-- Style CSS -->
-<link href="css/style.css">
+<link href="/public/css/style.css">
 <!-- Google Fonts -->
 <link
     href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,200i,300,300i,400,400i,600,600i,700,700i,900,900i">
 <!-- FontAwesome CSS -->
-<link href="css/font-awesome.min.css">
+<link href="/public/css/font-awesome.min.css">
 <!-- Fontello CSS -->
-<link type="text/css" href="css/fontello.css">
+<link type="text/css" href="/public/css/fontello.css">
 
 
 <!-- header-section-->
@@ -39,12 +39,47 @@
                 <!-- /.navigations-->
             </div>
             <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12 d-none d-xl-block d-lg-block">
-                <div class="header-quick-info">
-                    <a href="#" class="btn btn-white btn-xs mr-1">Login</a>
-                    <a href="/account/enter" class="btn btn-default btn-xs">Sign up</a>
+                <div class="header-quick-info" style="color:white;">
+                    <span id="loginSpan">
+                        <form action="/account/login" method="post">
+                            ID <input size="3" name="userid">
+                            PW <input size="3" name="userpw">
+                            <input type="submit" class="btn btn-white btn-xs mr-1" value="Login">
+                        </form>
+                    </span>
+                    <a href="/account/enter" class="btn btn-default btn-xs signup">Sign up</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
 <!-- /. header-section-->
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+
+
+<script>
+    $(document).ready(function () {
+        const uid = $.cookie("uid");
+
+        if (uid) {
+            $("#loginSpan").html(`${uid} <button onclick="logout()" class="btn btn-warning btn-xs">logout</button>`);
+            $(".signup").hide();
+        }
+
+
+    });
+
+    function logout() {
+        $.removeCookie("uid", { path: "/" });
+        $(".signup").show();
+        location.href = "/account/logout";
+    }
+
+
+</script>

@@ -13,11 +13,11 @@ const path = require('path');
 const options = {
     key: fs.readFileSync("./server.key"),
     cert: fs.readFileSync("./server.cert"),
-  };
+};
 
 
-app.use(bodyParser.urlencoded({extended:true}));
-app.get('/', (req,res) => {
+app.use(bodyParser.urlencoded({ extended: true }));
+app.get('/', (req, res) => {
     res.render('index.ejs');
 });
 app.use('/', router);
@@ -29,7 +29,7 @@ app.use(session({
 }));
 
 app.use('/', require('./routes/account.js'));
-app.use('/', require('./routes/post.js')); 
+app.use('/', require('./routes/post.js'));
 
 https.createServer(options, app).listen(process.env.WEB_PORT, async () => {
     await setup();
