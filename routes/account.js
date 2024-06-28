@@ -12,12 +12,19 @@ router.get('/account/enter', (req, res) => {
 router.post('/account/save', async (req, res) => {
   // console.log(req.body);
   const {mongodb, mysqldb} = await setup();
+
+  // 비밀번호 길이 확인
+  if (req.body.userpw.length < 5) {
+    return res.render('enter.ejs', { data: { pwMsg: '비밀번호를 5글자 이상으로 설정해주세요.' } });
+  }
+
   mongodb.collection('account')
     .findOne({userid:req.body.userid})
     .then(result => {
       //중복 상태일 경우
       if (result) {
-        res.render('enter.ejs', {data:{msg:'ID가 중복되었습니다.'}});
+        //수정
+        res.render('enter.ejs', {data:{msg:'다른 ID를 사용해 주세요.'}});
       } else {
         const generateSalt = (length = 16) => {
           //내장 모듈 crypto  가져오기
