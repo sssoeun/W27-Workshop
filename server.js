@@ -5,6 +5,8 @@ const https = require("https");
 const session = require("express-session");
 const router = express.Router();
 const bodyParser = require('body-parser');
+//cookieParser 추가
+const cookieParser = require("cookie-parser");
 
 
 const app = express();
@@ -15,7 +17,7 @@ const options = {
     cert: fs.readFileSync("./server.cert"),
 };
 
-
+app.use(cookieParser());    //cookieParser 추가
 app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
     res.render('index.ejs');
@@ -30,6 +32,7 @@ app.use(session({
 
 app.use('/', require('./routes/account.js'));
 app.use('/', require('./routes/post.js'));
+app.use('/', require('./routes/board.js'));
 
 https.createServer(options, app).listen(process.env.WEB_PORT, async () => {
     await setup();
