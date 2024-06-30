@@ -13,62 +13,75 @@
                     <tr>
                         <td data-bs-toggle="modal" data-bs-target="#myModal">
                             <a href="#"
-                                onclick="modal_content(`<%= data[i]._id %>`,`<%= data[i].title %>`,`<%= data[i].content %>`, `<%= data[i].date %>`)">
+                                onclick="modal_content(`<%= data[i]._id %>`,`<%= data[i].title %>`,`<%= data[i].content %>`, `<%= data[i].date %>`, `<%= data[i].author %>`)">
                                 <%= data[i].title %>
                             </a>
                         </td>
+                        <td><%= data[i].date %></td>
                         <td>
-                            <%= data[i].date %>
+                            <% if (currentUser && currentUser.userid === data[i].author) { %>
+                                <button class='delete btn btn-outline-danger' data-id='<%= data[i]._id %>'>삭제</button>
+                            <% } %>
                         </td>
-                        <td><button class='delete btn btn-outline-danger' data-id='<%= data[i]._id %>'>삭제</button></td>
                     </tr>
-                    <% } %>
+                <% } %>
             </tbody>
         </table>
 
         <div class="container my-3">
             <button class=" enter btn btn-primary" style="float:right;">글쓰기</button>
         </div>
+        <!-- 페이지네이션 -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <% if (currentPage > 1) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="/board/list?page=<%= currentPage - 1 %>">이전</a>
+                    </li>
+                <% } %>
+                
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                        <a class="page-link" href="/board/list?page=<%= i %>"><%= i %></a>
+                    </li>
+                <% } %>
+                
+                <% if (currentPage < totalPages) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="/board/list?page=<%= currentPage + 1 %>">다음</a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
 
         <!-- The Modal -->
         <form action="/board/update" method="post">
             <span id="hiddenSpan"></span>
-            <div class="modal" id="myModal">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-
-                        <!-- Modal Header -->
-                        <div class="modal-header">
-                            제목 : <div>
-                                <h4 class="modal-title" id="postTitle"></h4>
-                            </div>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-
-                        <!-- Modal body -->
-                        <div class="modal-body">
-                            <div>
-                                내용 : <span id="postContent"></span>
-                            </div>
-                            <p></p>
-                            <div>
-                                작성일 : <span id="postDate"></span>
-                            </div>
-
-                        </div>
-
-                        <!-- Modal footer -->
-                        <div class="modal-footer">
-                            <span id="updateSpan">
-                                <button type="button" class="btn btn-info" onclick="editDisplay()">수정하러가기</button>
-                            </span>
-
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                        </div>
-
-                    </div>
-                </div>
+         <!-- The Modal -->
+<div class="modal" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                제목 : <h4 class="modal-title" id="postTitle"></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div>내용 : <span id="postContent"></span></div>
+                <p></p>
+                <div>작성일 : <span id="postDate"></span></div>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <span id="updateSpan"></span>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
         </form>
     </div>
 
@@ -80,15 +93,21 @@
         });
 
         let modalData;
+        const currentUser = '<%= currentUser ? currentUser.userid : "" %>';
 
-        function modal_content(_id, title, content, date) {
-            modalData = { _id, title, content, date };
+        function modal_content(_id, title, content, date, author) {
+            modalData = { _id, title, content, date, author };
             $('#postTitle').text(`${modalData.title}`);
             $('#postContent').text(`${modalData.content}`);
             $('#postDate').text(`${modalData.date}`);
-            $('#updateSpan').html(`<button type="button" class="btn btn-info" onclick="editDisplay()">수정하러가기</button>`);
+    
+            // 현재 사용자가 게시글 작성자인 경우에만 수정 버튼 표시
+            if (currentUser === modalData.author) {
+                $('#updateSpan').html(`<button type="button" class="btn btn-info" onclick="editDisplay()">수정하러가기</button>`);
+            } else {
+                $('#updateSpan').html('');
+            }
         }
-
         function editDisplay() {
             //console.log(modalData._id, modalData.title, modalData.content, modalData.date);
             $('#hiddenSpan').html(`<input  type='hidden' value='${modalData._id}' name='_id'>`);

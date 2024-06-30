@@ -65,8 +65,7 @@ router.post('/account/save', async (req, res) => {
 
 //다른 라우터 등록 -> 로그인 처리
 router.post('/account/login', async (req, res) => {
-    console.log(req.body);
-    //db 연결
+
     const { mongodb, mysqldb } = await setup();
     mongodb.collection('account')
         .findOne({ userid: req.body.userid })

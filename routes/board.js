@@ -62,19 +62,39 @@ router.post("/board/update", isAuthenticated, async (req, res) => {
         list(mongodb, req, res);
     } catch (err) {
         console.error(err);
-        res.status(500).send({ message: '서버 오류' });
+        res.send('<script>alert("서버 오류가 발생했습니다."); window.location.href = "/board/list";</script>');
     }
 });
 
-function list(mongodb, req, res) {
-    mongodb
-        .collection("post")
-        .find()
-        .toArray()
-        .then((result) => {
-            //console.log(result);
-            return res.render("boardlist.ejs", { data: result });
+async function list(mongodb, req, res) {
+    const page = parseInt(req.query.page) || 1; //URL 쿼리에서 페이지 번호를 가져옴, 기본값 1.
+    const limit = 5; // 한 페이지에 표시할 게시글 수
+    const skip = (page - 1) * limit; // 건너뛸 문서의 수 계산
+    try {
+        // 전체 게시글 수 계산
+        const totalPosts = await mongodb.collection("post").countDocuments();
+        // 총 페이지 수 계산
+        const totalPages = Math.ceil(totalPosts / limit);
+
+        const result = await mongodb
+            .collection("post")
+            .find()
+            .sort({ date: -1 }) // 날짜 기준 내림차순 정렬 (최신글 먼저)
+            .skip(skip) // 페이지네이션: 이전 페이지의 게시글들을 건너뜀
+            .limit(limit) // 페이지네이션: 지정된 수만큼만 가져옴
+            .toArray(); // 결과를 배열로 변환
+
+        res.render("boardlist.ejs", { 
+            data: result, // 조회된 게시글 데이터
+            currentPage: page, // 현재 페이지 번호
+            totalPages: totalPages, // 전체 페이지 수
+            currentUser: req.session.user // 현재 로그인한 사용자 정보
         });
+    } catch (err) {
+        // 오류 처리
+        console.error("데이터 조회 중 오류 발생:", err);
+        res.status(500).send({ message: '서버 오류' });
+    }
 }
 
 //'/board/enter' 요청에 대한 처리 루틴
